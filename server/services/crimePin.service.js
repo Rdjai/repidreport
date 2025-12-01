@@ -1,5 +1,5 @@
 // src/services/crimePin.service.js
-import { CrimePin } from '../models/CrimePin.js';
+import { CrimePin } from '../models/CrimePin.model.js';
 import { hashIp } from '../utils/ipUtils.js';
 import { reverseGeocode } from '../utils/geocoding.js';
 import { logger } from '../utils/logger.js';

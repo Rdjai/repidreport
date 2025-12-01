@@ -13,9 +13,10 @@ import adminRoutes from "./routes/admin.route.js";
 import sosRoutes from './routes/sos.route.js';
 import problemRoute from './routes/problem.route.js'
 import volunteerAuthRoutes from './routes/volunteers.route.js';
-import crimePinRoutes from './routes/crimePin.route.js';
+import crimePinRoutes from './routes/crimePin.routes.js';
 import { initialize as initializeSocket } from './services/SocketService.js';
-
+import helmet from 'helmet';
+import morgan from 'morgan';
 const app = express();
 const server = http.createServer(app);
 
