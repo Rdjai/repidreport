@@ -45,7 +45,7 @@ const VolunteerDashboard: React.FC = () => {
         console.log('🎯 Initializing volunteer dashboard...');
 
         // Connect to Socket.io
-        const socketInstance = io('http://localhost:5000', {
+        const socketInstance = io('https://repidreport-zynl.onrender.com', {
             auth: { token }
         });
 
@@ -86,7 +86,7 @@ const VolunteerDashboard: React.FC = () => {
                     // Send location to server
                     if (token && socketInstance.connected) {
                         // Send to server API
-                        axios.put('http://localhost:5000/api/volunteer/location', {
+                        axios.put('https://repidreport-zynl.onrender.com/api/volunteer/location', {
                             lat: location.lat,
                             lng: location.lng
                         }, {
@@ -188,8 +188,9 @@ const VolunteerDashboard: React.FC = () => {
             };
 
             // Send accept request to server
+
             const response = await axios.post(
-                'http://localhost:5000/api/volunteer/accept-sos',
+                'https://repidreport-zynl.onrender.com/api/volunteer/accept-sos',
                 {
                     alertId: alert._id,
                     volunteerId: volunteerData._id,
@@ -436,7 +437,7 @@ const VolunteerDashboard: React.FC = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                    // Replace the "Get Directions" button with:
+
 
                                         <button
                                             onClick={handleGetDirections}

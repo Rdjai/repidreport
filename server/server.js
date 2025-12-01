@@ -37,7 +37,7 @@ if (mode === "dev") {
 } else {
   // Default CORS for development
   app.use(cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true
   }));
 }
@@ -89,6 +89,7 @@ app.use('/api/volunteer', volunteerAuthRoutes);
 //     message: 'Route not found'
 //   });
 // });
+
 
 // Initialize Socket.io
 const io = new Server(server, {

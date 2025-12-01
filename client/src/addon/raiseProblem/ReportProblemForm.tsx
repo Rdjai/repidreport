@@ -119,8 +119,9 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                 formDataObj.append('evidence', file);
             });
 
+            const baseUri = import.meta.env.VITE_API_URL
             const response = await axios.post(
-                'http://localhost:5000/api/problems',
+                `${baseUri}/api/problems`,
                 formDataObj,
                 {
                     headers: {

@@ -5,6 +5,7 @@ import { LogIn, UserPlus, Shield } from 'lucide-react';
 import axios from 'axios';
 
 const VolunteerLogin: React.FC = () => {
+    const baseUri = import.meta.env.VITE_API_URL
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
@@ -24,8 +25,8 @@ const VolunteerLogin: React.FC = () => {
 
         try {
             const url = isLogin
-                ? 'http://localhost:5000/api/volunteer/login'
-                : 'http://localhost:5000/api/volunteer/register';
+                ? `${baseUri}/volunteer/login`
+                : `${baseUri}/volunteer/register`;
 
             const payload = isLogin
                 ? { email: formData.email, password: formData.password }
@@ -90,8 +91,8 @@ const VolunteerLogin: React.FC = () => {
                                                 setFormData({ ...formData, skills: newSkills });
                                             }}
                                             className={`px-3 py-1 rounded-full text-sm ${formData.skills.includes(skill)
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                 }`}
                                         >
                                             {skill}

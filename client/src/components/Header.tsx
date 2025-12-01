@@ -24,6 +24,10 @@ const navItems = [
     name: "How it works",
     path: "/how-it-works",
   },
+  {
+    name: "Volunteer",
+    path: "/volunteer/login",
+  },
 ];
 
 const Header = () => {
@@ -68,8 +72,8 @@ const Header = () => {
     return (
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
-            ? "bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg"
-            : "bg-white/95 backdrop-blur-sm border-b border-transparent shadow-sm"
+          ? "bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg"
+          : "bg-white/95 backdrop-blur-sm border-b border-transparent shadow-sm"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -120,8 +124,8 @@ const Header = () => {
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg"
-          : "bg-white/95 backdrop-blur-sm border-b border-transparent shadow-sm"
+        ? "bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-lg"
+        : "bg-white/95 backdrop-blur-sm border-b border-transparent shadow-sm"
         }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -196,14 +200,14 @@ const Header = () => {
         {/* Mobile Navigation Menu */}
         <div
           className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen
-              ? "max-h-64 opacity-100"
-              : "max-h-0 opacity-0 overflow-hidden"
+            ? "max-h-64 opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
             }`}
         >
           <div
             className={`px-2 pt-2 pb-3 space-y-1 border-t transition-all duration-300 ${isScrolled
-                ? "bg-white/80 backdrop-blur-md border-gray-200/50"
-                : "bg-white border-gray-200"
+              ? "bg-white/80 backdrop-blur-md border-gray-200/50"
+              : "bg-white border-gray-200"
               }`}
           >
             {!admin &&
