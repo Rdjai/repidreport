@@ -48,11 +48,11 @@ const VolunteerLogin: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Shield className="text-blue-600" size={32} />
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Shield className="text-red-600" size={32} />
                     </div>
                     <h1 className="text-3xl font-bold text-gray-800">Volunteer Portal</h1>
                     <p className="text-gray-600 mt-2">Join our community safety network</p>
@@ -64,7 +64,7 @@ const VolunteerLogin: React.FC = () => {
                             <input
                                 type="text"
                                 placeholder="Full Name"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 required
@@ -72,7 +72,7 @@ const VolunteerLogin: React.FC = () => {
                             <input
                                 type="tel"
                                 placeholder="Phone Number"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 value={formData.phone}
                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                 required
@@ -91,7 +91,7 @@ const VolunteerLogin: React.FC = () => {
                                                 setFormData({ ...formData, skills: newSkills });
                                             }}
                                             className={`px-3 py-1 rounded-full text-sm ${formData.skills.includes(skill)
-                                                ? 'bg-blue-500 text-white'
+                                                ? 'bg-red-500 text-white'
                                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                 }`}
                                         >
@@ -106,7 +106,7 @@ const VolunteerLogin: React.FC = () => {
                     <input
                         type="email"
                         placeholder="Email"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         value={formData.email}
                         onChange={e => setFormData({ ...formData, email: e.target.value })}
                         required
@@ -115,7 +115,7 @@ const VolunteerLogin: React.FC = () => {
                     <input
                         type="password"
                         placeholder="Password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         value={formData.password}
                         onChange={e => setFormData({ ...formData, password: e.target.value })}
                         required
@@ -124,7 +124,7 @@ const VolunteerLogin: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                         {loading ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -140,7 +140,7 @@ const VolunteerLogin: React.FC = () => {
                 <div className="text-center mt-6">
                     <button
                         onClick={() => setIsLogin(!isLogin)}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        className="text-red-600 hover:text-red-800 font-medium"
                     >
                         {isLogin
                             ? "Don't have an account? Register"

@@ -25,9 +25,14 @@ const navItems = [
     path: "/how-it-works",
   },
   {
+    name: "Voice",
+    path: "/feed",
+  },
+  {
     name: "Volunteer",
     path: "/volunteer/login",
   },
+
 ];
 
 const Header = () => {

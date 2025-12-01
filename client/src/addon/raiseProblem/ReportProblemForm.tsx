@@ -11,7 +11,9 @@ interface ReportProblemFormProps {
     onSuccess?: () => void;
     onCancel?: () => void;
 }
-const baseUri = import.meta.env.VITE_BASE_URL
+
+const baseUri = import.meta.env.VITE_BASE_URL;
+
 const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCancel }) => {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
@@ -59,7 +61,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                     };
                     setUserLocation(location);
 
-                    // Reverse geocode to get address (simplified)
+                    // Reverse geocode to get address
                     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lng}`)
                         .then(res => res.json())
                         .then(data => {
@@ -119,7 +121,6 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                 formDataObj.append('evidence', file);
             });
 
-
             const response = await axios.post(
                 `${baseUri}/api/problems`,
                 formDataObj,
@@ -169,8 +170,8 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
     };
 
     return (
-        <div className="bg-gradient-to-r from-red-500 to-red-600      flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shad   ow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className=" bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
@@ -193,13 +194,13 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                         {[1, 2, 3].map((stepNum) => (
                             <React.Fragment key={stepNum}>
                                 <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= stepNum
-                                    ? 'bg-blue-500 text-white'
+                                    ? 'bg-red-500 text-white'
                                     : 'bg-gray-200 text-gray-400'
                                     }`}>
                                     {stepNum}
                                 </div>
                                 {stepNum < 3 && (
-                                    <div className={`flex-1 h-1 mx-2 ${step > stepNum ? 'bg-blue-500' : 'bg-gray-200'
+                                    <div className={`flex-1 h-1 mx-2 ${step > stepNum ? 'bg-red-500' : 'bg-gray-200'
                                         }`} />
                                 )}
                             </React.Fragment>
@@ -209,9 +210,12 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit}>
-                        {/* Step 1: Problem Details */}
-                        {step === 1 && (
+                    {/* Step 1: Problem Details */}
+                    {step === 1 && (
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            nextStep();
+                        }}>
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -221,7 +225,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                         type="text"
                                         required
                                         placeholder="Brief description of the problem"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                         value={formData.title}
                                         onChange={e => setFormData({ ...formData, title: e.target.value })}
                                     />
@@ -235,7 +239,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                         required
                                         rows={4}
                                         placeholder="Provide detailed information about the problem..."
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                         value={formData.description}
                                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     />
@@ -247,7 +251,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                             Category
                                         </label>
                                         <select
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                             value={formData.category}
                                             onChange={e => setFormData({ ...formData, category: e.target.value })}
                                         >
@@ -262,7 +266,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                             Severity
                                         </label>
                                         <select
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                             value={formData.severity}
                                             onChange={e => setFormData({ ...formData, severity: e.target.value })}
                                         >
@@ -273,10 +277,25 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                     </div>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Step 2: Evidence & Location */}
-                        {step === 2 && (
+                            <div className="flex justify-between mt-8 pt-6 border-t">
+                                <div></div>
+                                <button
+                                    type="submit"
+                                    className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                >
+                                    Continue
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Step 2: Evidence & Location */}
+                    {step === 2 && (
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            nextStep();
+                        }}>
                             <div className="space-y-6">
                                 {/* Location */}
                                 <div>
@@ -288,7 +307,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                         <button
                                             type="button"
                                             onClick={getCurrentLocation}
-                                            className="text-sm text-blue-600 hover:text-blue-800"
+                                            className="text-sm text-red-600 hover:text-red-800"
                                         >
                                             Use Current Location
                                         </button>
@@ -342,7 +361,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                     {files.length === 0 ? (
                                         <div
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="p-8 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                                            className="p-8 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-red-400 hover:bg-red-50 transition-colors"
                                         >
                                             <Upload className="mx-auto text-gray-400 mb-2" size={32} />
                                             <p className="text-gray-600">Click to upload evidence</p>
@@ -359,7 +378,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                                 <button
                                                     type="button"
                                                     onClick={() => fileInputRef.current?.click()}
-                                                    className="text-sm text-blue-600 hover:text-blue-800"
+                                                    className="text-sm text-red-600 hover:text-red-800"
                                                 >
                                                     Add More
                                                 </button>
@@ -402,10 +421,28 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                     )}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Step 3: Contact Information */}
-                        {step === 3 && (
+                            <div className="flex justify-between mt-8 pt-6 border-t">
+                                <button
+                                    type="button"
+                                    onClick={prevStep}
+                                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                >
+                                    Back
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                >
+                                    Continue
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Step 3: Contact Information */}
+                    {step === 3 && (
+                        <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
                                 <div className="flex items-center mb-4">
                                     <input
@@ -413,7 +450,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                         id="anonymous"
                                         checked={formData.anonymous}
                                         onChange={e => setFormData({ ...formData, anonymous: e.target.checked })}
-                                        className="h-4 w-4 text-blue-600 rounded"
+                                        className="h-4 w-4 text-red-600 rounded"
                                     />
                                     <label htmlFor="anonymous" className="ml-2 text-gray-700">
                                         Report anonymously
@@ -429,7 +466,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                             <input
                                                 type="text"
                                                 placeholder="Optional"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                                 value={formData.userInfo.name}
                                                 onChange={e => setFormData({
                                                     ...formData,
@@ -446,7 +483,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                                 <input
                                                     type="email"
                                                     placeholder="Optional"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                                     value={formData.userInfo.email}
                                                     onChange={e => setFormData({
                                                         ...formData,
@@ -462,7 +499,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                                 <input
                                                     type="tel"
                                                     placeholder="Optional"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                                     value={formData.userInfo.phone}
                                                     onChange={e => setFormData({
                                                         ...formData,
@@ -474,21 +511,18 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                     </div>
                                 )}
 
-                                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                                     <div className="flex items-start">
-                                        <AlertTriangle className="text-blue-500 mr-2 flex-shrink-0 mt-0.5" size={16} />
-                                        <p className="text-sm text-blue-700">
+                                        <AlertTriangle className="text-red-500 mr-2 flex-shrink-0 mt-0.5" size={16} />
+                                        <p className="text-sm text-red-700">
                                             Your report will be public and visible to other users and volunteers.
                                             Contact information is optional but helps with follow-up.
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-between mt-8 pt-6 border-t">
-                            {step > 1 ? (
+                            <div className="flex justify-between mt-8 pt-6 border-t">
                                 <button
                                     type="button"
                                     onClick={prevStep}
@@ -496,19 +530,6 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                 >
                                     Back
                                 </button>
-                            ) : (
-                                <div></div>
-                            )}
-
-                            {step < 3 ? (
-                                <button
-                                    type="button"
-                                    onClick={nextStep}
-                                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                >
-                                    Continue
-                                </button>
-                            ) : (
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -523,13 +544,13 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                                         'Submit Report'
                                     )}
                                 </button>
-                            )}
-                        </div>
-                    </form>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 
-export default ReportProblemForm;   
+export default ReportProblemForm;

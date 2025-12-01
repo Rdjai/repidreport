@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-
+import CrimeRatingMap from '../addon/component/CrimeRatingMap';
+import { useState } from "react";
+import { MapPin } from "lucide-react";
 const Hero = () => {
+
+  const [showCrimeMap, setShowCrimeMap] = useState(false);
   const stats = [
+
     {
       value: "100+",
       label: "Reports Submitted",
@@ -17,6 +22,7 @@ const Hero = () => {
     },
   ];
   return (
+
     <section className="bg-gradient-to-r from-red-500 to-red-600 text-white py-24">
       <div className="max-w-6xl mx-auto px-4 text-center">
         <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -31,6 +37,15 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+
+
+          <button
+            onClick={() => setShowCrimeMap(!showCrimeMap)}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-md font-medium"
+          >
+            <MapPin size={20} />
+            {showCrimeMap ? 'Hide Crime Map' : 'View Crime Map'}
+          </button>
           <Link to="/submit-report" className="lg:w-fit w-full">
             <Button className="bg-white text-red-600 px-8 py-6 rounded-lg font-semibold text-lg hover:bg-gray-100 w-full">
               Submit Report
@@ -45,7 +60,11 @@ const Hero = () => {
             </Button>
           </Link>
         </div>
-
+        {showCrimeMap && (
+          <div className="mb-8">
+            <CrimeRatingMap />
+          </div>
+        )}
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
           {stats.map((stat, index) => (

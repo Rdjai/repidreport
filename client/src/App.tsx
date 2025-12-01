@@ -15,6 +15,7 @@ import { AdminProvider } from "./context/AdminContext";
 import VolunteerDashboard from "./addon/sos/VolunteerDashboard";
 import VolunteerLogin from "./addon/sos/VolunteerLogin";
 import ReportProblemForm from "./addon/raiseProblem/ReportProblemForm";
+import { ProblemFeed } from "./addon/raiseProblem/ProblemFeed";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,11 @@ const router = createBrowserRouter([
       {
         path: "/raise-problem",
         element: <ReportProblemForm />,
+
+      },
+      {
+        path: "/feed",
+        element: <ProblemFeed />,
 
       },
       // admin login (no layout)
