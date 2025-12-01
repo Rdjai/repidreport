@@ -82,7 +82,7 @@ app.use("/api", reportRoute);
 app.use("/api", adminRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/volunteer', volunteerAuthRoutes);
-app.use('/api', problemRoute)
+app.use('/api/problem', problemRoute)
 
 // 404 handler for undefined routes
 // app.use('*', (req, res) => {

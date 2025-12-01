@@ -20,7 +20,7 @@ router.get('/nearby', getNearbyProblems);
 router.get('/:id', getProblemById);
 
 router.post(
-    '/problems',
+    '/create',
     upload.array('evidence', 5),
     createProblem
 );
