@@ -48,7 +48,7 @@ interface AreaStats {
     safetyScore: number;
 }
 
-// Base URL - Updated to a more common port
+// Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Component to handle map click events
@@ -65,7 +65,7 @@ function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number
 export const CrimeRatingMap: React.FC = () => {
     // State
     const [crimePins, setCrimePins] = useState<CrimePin[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedPin, setSelectedPin] = useState<CrimePin | null>(null);
     const [showAddPinModal, setShowAddPinModal] = useState(false);
     const [areaStats, setAreaStats] = useState<AreaStats | null>(null);
@@ -73,6 +73,7 @@ export const CrimeRatingMap: React.FC = () => {
     const [ratingFilter, setRatingFilter] = useState<number | 'all'>('all');
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
     // Form state
     const [newPin, setNewPin] = useState({
@@ -102,62 +103,7 @@ export const CrimeRatingMap: React.FC = () => {
         { id: 'pickpocket', name: 'Pickpocket', icon: '👛' }
     ];
 
-    // Mock data for fallback
-    const mockCrimePins: CrimePin[] = [
-        {
-            _id: '1',
-            userId: 'user1',
-            userName: 'Rajesh Kumar',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh',
-            location: { lat: 23.256047, lng: 77.482007, address: 'Main Street, Bhopal' },
-            crimeType: 'theft',
-            rating: 4,
-            description: 'Multiple bike theft incidents at night.',
-            evidence: [],
-            reportedAt: new Date(Date.now() - 86400000).toISOString(),
-            verified: true,
-            upvotes: 15,
-            downvotes: 2,
-            commentsCount: 8,
-            tags: ['night', 'bike-theft']
-        },
-        {
-            _id: '2',
-            userId: 'user2',
-            userName: 'Priya Sharma',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Priya',
-            location: { lat: 23.258047, lng: 77.484007, address: 'City Park, Bhopal' },
-            crimeType: 'harassment',
-            rating: 5,
-            description: 'Women harassment after dark.',
-            evidence: [],
-            reportedAt: new Date(Date.now() - 172800000).toISOString(),
-            verified: true,
-            upvotes: 28,
-            downvotes: 1,
-            commentsCount: 12,
-            tags: ['women-safety', 'dark']
-        },
-        {
-            _id: '3',
-            userId: 'user3',
-            userName: 'Amit Patel',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amit',
-            location: { lat: 23.252047, lng: 77.480007, address: 'Market Road, Bhopal' },
-            crimeType: 'pickpocket',
-            rating: 3,
-            description: 'Pickpocketing during market hours.',
-            evidence: [],
-            reportedAt: new Date(Date.now() - 259200000).toISOString(),
-            verified: false,
-            upvotes: 9,
-            downvotes: 0,
-            commentsCount: 5,
-            tags: ['crowded', 'daytime']
-        }
-    ];
-
-    // Initialize map
+    // Initialize map - fetch data on component mount
     useEffect(() => {
         fetchCrimePins();
     }, []);
@@ -166,32 +112,173 @@ export const CrimeRatingMap: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            // Call actual API with error handling
             console.log('Fetching crime pins from:', `${API_BASE_URL}/crime-pins`);
-            const response = await axios.get(`${API_BASE_URL}/crime-pins`, {
-                timeout: 5000,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
 
-            if (response.data && Array.isArray(response.data)) {
-                setCrimePins(response.data);
-                calculateAreaStats(response.data);
-                console.log('Fetched', response.data.length, 'crime pins');
-            } else {
-                throw new Error('Invalid response format');
+            // Try different possible endpoints
+            const endpoints = [
+                `${API_BASE_URL}/crime-pins`,
+                `${API_BASE_URL}/crimepins`,
+                `${API_BASE_URL}/pins`,
+                `${API_BASE_URL}/reports`
+            ];
+
+            let response = null;
+            let lastError = null;
+
+            // Try each endpoint
+            for (const endpoint of endpoints) {
+                try {
+                    console.log('Trying endpoint:', endpoint);
+                    response = await axios.get(endpoint, {
+                        timeout: 3000,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    if (response.data) {
+                        console.log('Successfully fetched from:', endpoint);
+                        console.log('Response data:', response.data);
+                        break;
+                    }
+                } catch (err) {
+                    console.log('Failed to fetch from:', endpoint, err);
+                    lastError = err;
+                    continue;
+                }
             }
+
+            if (!response) {
+                throw new Error('All API endpoints failed. Check backend server.');
+            }
+
+            // Handle different response formats
+            let pinsData = [];
+
+            if (Array.isArray(response.data)) {
+                // Direct array response
+                pinsData = response.data;
+            } else if (response.data.data && Array.isArray(response.data.data)) {
+                // Wrapped in data property
+                pinsData = response.data.data;
+            } else if (response.data.pins && Array.isArray(response.data.pins)) {
+                // Wrapped in pins property
+                pinsData = response.data.pins;
+            } else if (response.data.reports && Array.isArray(response.data.reports)) {
+                // Wrapped in reports property
+                pinsData = response.data.reports;
+            } else {
+                // Try to extract any array from response
+                const possibleArrays = Object.values(response.data).filter(val => Array.isArray(val));
+                if (possibleArrays.length > 0) {
+                    pinsData = possibleArrays[0] as any[]; // Cast to any[]
+                } else {
+                    throw new Error('Invalid response format: No array found');
+                }
+            }
+
+            console.log('Parsed pins data:', pinsData);
+
+            if (pinsData.length > 0) {
+                // Transform data to match our interface
+                const transformedPins = pinsData.map((pin: any) => ({
+                    _id: pin._id || pin.id || `pin-${Math.random()}`,
+                    userId: pin.userId || 'unknown',
+                    userName: pin.userName || pin.user?.name || 'Anonymous',
+                    userAvatar: pin.userAvatar || pin.user?.avatar,
+                    location: {
+                        lat: pin.location?.lat || pin.lat || pin.coordinates?.lat || center[0] + (Math.random() - 0.5) * 0.01,
+                        lng: pin.location?.lng || pin.lng || pin.coordinates?.lng || center[1] + (Math.random() - 0.5) * 0.01,
+                        address: pin.location?.address || pin.address || 'Unknown Location'
+                    },
+                    crimeType: pin.crimeType || pin.type || 'unknown',
+                    rating: (pin.rating || 3) as 1 | 2 | 3 | 4 | 5,
+                    description: pin.description || 'No description provided',
+                    evidence: pin.evidence || [],
+                    reportedAt: pin.reportedAt || pin.createdAt || pin.date || new Date().toISOString(),
+                    verified: pin.verified || false,
+                    upvotes: pin.upvotes || 0,
+                    downvotes: pin.downvotes || 0,
+                    commentsCount: pin.commentsCount || pin.comments?.length || 0,
+                    tags: pin.tags || []
+                }));
+
+                setCrimePins(transformedPins);
+                calculateAreaStats(transformedPins);
+                console.log(`Loaded ${transformedPins.length} crime pins from backend`);
+            } else {
+                console.log('No pins found in response, using mock data');
+                // Use mock data as fallback
+                useMockData();
+            }
+
         } catch (error: any) {
             console.error('Error fetching crime pins:', error);
-            setError('Failed to load crime reports. Using sample data.');
-            // Fallback to mock data
-            setCrimePins(mockCrimePins);
-            calculateAreaStats(mockCrimePins);
+            setError(`Failed to load crime reports: ${error.message}. Using sample data.`);
+            // Use mock data as fallback
+            useMockData();
         } finally {
             setLoading(false);
         }
+    };
+
+    const useMockData = () => {
+        const mockCrimePins: CrimePin[] = [
+            {
+                _id: '1',
+                userId: 'user1',
+                userName: 'Rajesh Kumar',
+                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh',
+                location: { lat: 23.256047, lng: 77.482007, address: 'Main Street, Bhopal' },
+                crimeType: 'theft',
+                rating: 4,
+                description: 'Multiple bike theft incidents at night.',
+                evidence: [],
+                reportedAt: new Date(Date.now() - 86400000).toISOString(),
+                verified: true,
+                upvotes: 15,
+                downvotes: 2,
+                commentsCount: 8,
+                tags: ['night', 'bike-theft']
+            },
+            {
+                _id: '2',
+                userId: 'user2',
+                userName: 'Priya Sharma',
+                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Priya',
+                location: { lat: 23.258047, lng: 77.484007, address: 'City Park, Bhopal' },
+                crimeType: 'harassment',
+                rating: 5,
+                description: 'Women harassment after dark.',
+                evidence: [],
+                reportedAt: new Date(Date.now() - 172800000).toISOString(),
+                verified: true,
+                upvotes: 28,
+                downvotes: 1,
+                commentsCount: 12,
+                tags: ['women-safety', 'dark']
+            },
+            {
+                _id: '3',
+                userId: 'user3',
+                userName: 'Amit Patel',
+                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amit',
+                location: { lat: 23.252047, lng: 77.480007, address: 'Market Road, Bhopal' },
+                crimeType: 'pickpocket',
+                rating: 3,
+                description: 'Pickpocketing during market hours.',
+                evidence: [],
+                reportedAt: new Date(Date.now() - 259200000).toISOString(),
+                verified: false,
+                upvotes: 9,
+                downvotes: 0,
+                commentsCount: 5,
+                tags: ['crowded', 'daytime']
+            }
+        ];
+
+        setCrimePins(mockCrimePins);
+        calculateAreaStats(mockCrimePins);
     };
 
     const calculateAreaStats = (pins: CrimePin[]) => {
@@ -205,6 +292,12 @@ export const CrimeRatingMap: React.FC = () => {
             averageRating: Number(averageRating.toFixed(1)),
             safetyScore: Math.round(safetyScore)
         });
+
+        console.log('Area stats calculated:', {
+            totalPins,
+            averageRating,
+            safetyScore
+        });
     };
 
     const handleMapClick = (lat: number, lng: number) => {
@@ -217,58 +310,147 @@ export const CrimeRatingMap: React.FC = () => {
             }
         }));
         setShowAddPinModal(true);
+        setFormErrors({});
+    };
+
+    const validateForm = () => {
+        const errors: { [key: string]: string } = {};
+
+        if (!newPin.description.trim()) {
+            errors.description = 'Description is required';
+        } else if (newPin.description.trim().length < 10) {
+            errors.description = 'Description must be at least 10 characters long';
+        } else if (newPin.description.trim().length > 500) {
+            errors.description = 'Description must be less than 500 characters';
+        }
+
+        if (!newPin.crimeType) {
+            errors.crimeType = 'Crime type is required';
+        }
+
+        if (newPin.rating < 1 || newPin.rating > 5) {
+            errors.rating = 'Rating must be between 1 and 5';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleAddPin = async () => {
-        if (!newPin.description.trim()) {
-            alert('Please enter a description');
+        setFormErrors({});
+
+        if (!validateForm()) {
             return;
         }
 
         try {
             const pinData = {
-                ...newPin,
+                crimeType: newPin.crimeType,
+                rating: newPin.rating,
+                description: newPin.description.trim(),
+                location: {
+                    lat: newPin.location.lat,
+                    lng: newPin.location.lng,
+                    address: newPin.location.address
+                },
+                tags: newPin.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
                 userId: 'current-user',
                 userName: 'You',
-                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
-                evidence: [],
-                reportedAt: new Date().toISOString(),
-                verified: false,
-                upvotes: 0,
-                downvotes: 0,
-                commentsCount: 0,
-                tags: newPin.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
             };
 
-            console.log('Submitting pin:', pinData);
-            // Call API to save pin
-            const response = await axios.post(`${API_BASE_URL}/crime-pins`, pinData, {
-                headers: {
-                    'Content-Type': 'application/json'
+            console.log('Submitting pin to backend:', pinData);
+
+            // Try different endpoints for POST
+            const endpoints = [
+                `${API_BASE_URL}/crime-pins`,
+                `${API_BASE_URL}/crimepins`,
+                `${API_BASE_URL}/pins`,
+                `${API_BASE_URL}/reports`
+            ];
+
+            let response = null;
+            let lastError = null;
+
+            for (const endpoint of endpoints) {
+                try {
+                    console.log('Trying POST to:', endpoint);
+                    response = await axios.post(endpoint, pinData, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        validateStatus: (status) => status < 500,
+                    });
+
+                    if (response.status >= 200 && response.status < 300) {
+                        console.log('Successfully posted to:', endpoint);
+                        break;
+                    }
+                } catch (err) {
+                    console.log('Failed to POST to:', endpoint, err);
+                    lastError = err;
+                    continue;
                 }
-            });
+            }
 
-            const savedPin = response.data;
-            console.log('Pin saved successfully:', savedPin);
+            if (!response) {
+                throw new Error('All POST endpoints failed');
+            }
 
-            setCrimePins(prev => [savedPin, ...prev]);
-            calculateAreaStats([savedPin, ...crimePins]);
-            setShowAddPinModal(false);
-            setNewPin({
-                crimeType: 'theft',
-                rating: 3,
-                description: '',
-                tags: '',
+            if (response.data.success === false) {
+                const backendErrors: { [key: string]: string } = {};
+                if (response.data.errors && Array.isArray(response.data.errors)) {
+                    response.data.errors.forEach((err: any) => {
+                        backendErrors[err.path] = err.msg;
+                    });
+                }
+                setFormErrors(backendErrors);
+                throw new Error('Backend validation failed');
+            }
+
+            // Parse response data
+            const savedPin = response.data.data || response.data.pin || response.data;
+
+            // Transform to our format
+            const newCrimePin: CrimePin = {
+                _id: savedPin._id || savedPin.id || `pin-${Date.now()}`,
+                userId: savedPin.userId || 'current-user',
+                userName: savedPin.userName || 'You',
+                userAvatar: savedPin.userAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
                 location: {
-                    lat: center[0],
-                    lng: center[1],
-                    address: 'Central Area'
-                }
-            });
+                    lat: savedPin.location?.lat || savedPin.lat || newPin.location.lat,
+                    lng: savedPin.location?.lng || savedPin.lng || newPin.location.lng,
+                    address: savedPin.location?.address || savedPin.address || newPin.location.address
+                },
+                crimeType: savedPin.crimeType || newPin.crimeType,
+                rating: (savedPin.rating || newPin.rating) as 1 | 2 | 3 | 4 | 5,
+                description: savedPin.description || newPin.description,
+                evidence: savedPin.evidence || [],
+                reportedAt: savedPin.reportedAt || savedPin.createdAt || new Date().toISOString(),
+                verified: savedPin.verified || false,
+                upvotes: savedPin.upvotes || 0,
+                downvotes: savedPin.downvotes || 0,
+                commentsCount: savedPin.commentsCount || 0,
+                tags: savedPin.tags || newPin.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+            };
+
+            console.log('New pin added:', newCrimePin);
+
+            setCrimePins(prev => [newCrimePin, ...prev]);
+            calculateAreaStats([newCrimePin, ...crimePins]);
+            setShowAddPinModal(false);
+            resetNewPin();
+
+            alert('Report submitted successfully!');
+
         } catch (error: any) {
             console.error('Error adding pin:', error);
 
-            // Fallback to local state if API fails
+            if (Object.keys(formErrors).length > 0) {
+                return;
+            }
+
+            // Create pin locally as fallback
             const newCrimePin: CrimePin = {
                 _id: `pin-${Date.now()}`,
                 userId: 'current-user',
@@ -277,7 +459,7 @@ export const CrimeRatingMap: React.FC = () => {
                 location: newPin.location,
                 crimeType: newPin.crimeType,
                 rating: newPin.rating as 1 | 2 | 3 | 4 | 5,
-                description: newPin.description,
+                description: newPin.description.trim(),
                 evidence: [],
                 reportedAt: new Date().toISOString(),
                 verified: false,
@@ -290,59 +472,55 @@ export const CrimeRatingMap: React.FC = () => {
             setCrimePins(prev => [newCrimePin, ...prev]);
             calculateAreaStats([newCrimePin, ...crimePins]);
             setShowAddPinModal(false);
-            setNewPin({
-                crimeType: 'theft',
-                rating: 3,
-                description: '',
-                tags: '',
-                location: {
-                    lat: center[0],
-                    lng: center[1],
-                    address: 'Central Area'
-                }
-            });
+            resetNewPin();
 
-            alert('Report saved locally. API connection failed.');
+            alert('Report saved locally. Could not connect to backend.');
         }
+    };
+
+    const resetNewPin = () => {
+        setNewPin({
+            crimeType: 'theft',
+            rating: 3,
+            description: '',
+            tags: '',
+            location: {
+                lat: center[0],
+                lng: center[1],
+                address: 'Central Area, Bhopal'
+            }
+        });
+        setFormErrors({});
     };
 
     const handlePinVote = async (pinId: string, voteType: 'upvote' | 'downvote') => {
         try {
-            // Call API to update vote
             await axios.post(`${API_BASE_URL}/crime-pins/${pinId}/vote`, { voteType });
-
-            // Update local state
-            setCrimePins(prev => prev.map(pin => {
-                if (pin._id === pinId) {
-                    return {
-                        ...pin,
-                        upvotes: voteType === 'upvote' ? pin.upvotes + 1 : pin.upvotes,
-                        downvotes: voteType === 'downvote' ? pin.downvotes + 1 : pin.downvotes
-                    };
-                }
-                return pin;
-            }));
-
-            if (selectedPin && selectedPin._id === pinId) {
-                setSelectedPin(prev => prev ? {
-                    ...prev,
-                    upvotes: voteType === 'upvote' ? prev.upvotes + 1 : prev.upvotes,
-                    downvotes: voteType === 'downvote' ? prev.downvotes + 1 : prev.downvotes
-                } : null);
-            }
+            updatePinVotes(pinId, voteType);
         } catch (error) {
             console.error('Error voting:', error);
-            // Update locally even if API fails
-            setCrimePins(prev => prev.map(pin => {
-                if (pin._id === pinId) {
-                    return {
-                        ...pin,
-                        upvotes: voteType === 'upvote' ? pin.upvotes + 1 : pin.upvotes,
-                        downvotes: voteType === 'downvote' ? pin.downvotes + 1 : pin.downvotes
-                    };
-                }
-                return pin;
-            }));
+            updatePinVotes(pinId, voteType);
+        }
+    };
+
+    const updatePinVotes = (pinId: string, voteType: 'upvote' | 'downvote') => {
+        setCrimePins(prev => prev.map(pin => {
+            if (pin._id === pinId) {
+                return {
+                    ...pin,
+                    upvotes: voteType === 'upvote' ? pin.upvotes + 1 : pin.upvotes,
+                    downvotes: voteType === 'downvote' ? pin.downvotes + 1 : pin.downvotes
+                };
+            }
+            return pin;
+        }));
+
+        if (selectedPin && selectedPin._id === pinId) {
+            setSelectedPin(prev => prev ? {
+                ...prev,
+                upvotes: voteType === 'upvote' ? prev.upvotes + 1 : prev.upvotes,
+                downvotes: voteType === 'downvote' ? prev.downvotes + 1 : prev.downvotes
+            } : null);
         }
     };
 
@@ -435,6 +613,7 @@ export const CrimeRatingMap: React.FC = () => {
                                     }
                                 }));
                                 setShowAddPinModal(true);
+                                setFormErrors({});
                             }}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                         >
@@ -453,6 +632,13 @@ export const CrimeRatingMap: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Data source info */}
+                <div className="mt-2 text-xs text-gray-500">
+                    {crimePins.length > 0 && crimePins[0]._id.includes('pin-') ?
+                        'Using sample data' :
+                        `Loaded ${crimePins.length} reports from backend`}
+                </div>
 
                 {/* Stats */}
                 {areaStats && (
@@ -591,6 +777,9 @@ export const CrimeRatingMap: React.FC = () => {
                                                 <span className="text-red-600">↓{pin.downvotes}</span>
                                             </div>
                                         </div>
+                                        <div className="mt-2 text-xs text-gray-500">
+                                            {pin._id.includes('pin-') ? 'Local report' : 'From backend'}
+                                        </div>
                                     </div>
                                 </Popup>
                             </Marker>
@@ -613,51 +802,69 @@ export const CrimeRatingMap: React.FC = () => {
                         <h3 className="font-semibold text-gray-900">
                             Recent Reports ({filteredPins.length})
                         </h3>
-                        <button
-                            onClick={fetchCrimePins}
-                            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 text-gray-900"
-                        >
-                            <RefreshCw size={14} />
-                            Refresh
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={fetchCrimePins}
+                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 text-gray-900"
+                            >
+                                <RefreshCw size={14} />
+                                Refresh
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="space-y-3">
-                        {filteredPins.slice(0, 5).map(pin => (
-                            <div
-                                key={pin._id}
-                                className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer"
-                                onClick={() => setSelectedPin(pin)}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs"
-                                            style={{ backgroundColor: getPinColor(pin.rating) }}
-                                        >
-                                            {pin.rating}
+                    {loading ? (
+                        <div className="flex justify-center items-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <span className="ml-3 text-gray-600">Loading reports...</span>
+                        </div>
+                    ) : filteredPins.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            No reports found. Click on map to add the first report!
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {filteredPins.slice(0, 5).map(pin => (
+                                <div
+                                    key={pin._id}
+                                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => setSelectedPin(pin)}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs"
+                                                style={{ backgroundColor: getPinColor(pin.rating) }}
+                                            >
+                                                {pin.rating}
+                                            </div>
+                                            <span className="font-medium text-gray-900">
+                                                {pin.crimeType}
+                                            </span>
+                                            {pin._id.includes('pin-') && (
+                                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                                                    Local
+                                                </span>
+                                            )}
                                         </div>
-                                        <span className="font-medium text-gray-900">
-                                            {pin.crimeType}
+                                        <span className="text-xs text-gray-600">
+                                            {formatDistanceToNow(new Date(pin.reportedAt), { addSuffix: true })}
                                         </span>
                                     </div>
-                                    <span className="text-xs text-gray-600">
-                                        {formatDistanceToNow(new Date(pin.reportedAt), { addSuffix: true })}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-900 line-clamp-2 mb-2">
-                                    {pin.description}
-                                </p>
-                                <div className="flex items-center justify-between text-xs text-gray-700">
-                                    <span>{pin.userName}</span>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-green-600">↑{pin.upvotes}</span>
-                                        <span className="text-red-600">↓{pin.downvotes}</span>
+                                    <p className="text-sm text-gray-900 line-clamp-2 mb-2">
+                                        {pin.description}
+                                    </p>
+                                    <div className="flex items-center justify-between text-xs text-gray-700">
+                                        <span>{pin.userName}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-green-600">↑{pin.upvotes}</span>
+                                            <span className="text-red-600">↓{pin.downvotes}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -670,7 +877,6 @@ export const CrimeRatingMap: React.FC = () => {
                     />
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-fade-in relative z-[10000] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
-                            {/* Modal Header with Close Button */}
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">
@@ -708,8 +914,12 @@ export const CrimeRatingMap: React.FC = () => {
                                     </label>
                                     <select
                                         value={newPin.crimeType}
-                                        onChange={(e) => setNewPin({ ...newPin, crimeType: e.target.value })}
-                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                                        onChange={(e) => {
+                                            setNewPin({ ...newPin, crimeType: e.target.value });
+                                            setFormErrors(prev => ({ ...prev, crimeType: '' }));
+                                        }}
+                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white ${formErrors.crimeType ? 'border-red-500' : ''
+                                            }`}
                                     >
                                         {crimeTypes.slice(1).map(type => (
                                             <option key={type.id} value={type.id} className="text-gray-900">
@@ -717,6 +927,9 @@ export const CrimeRatingMap: React.FC = () => {
                                             </option>
                                         ))}
                                     </select>
+                                    {formErrors.crimeType && (
+                                        <p className="mt-1 text-sm text-red-600">{formErrors.crimeType}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -728,16 +941,22 @@ export const CrimeRatingMap: React.FC = () => {
                                             <button
                                                 key={rating}
                                                 type="button"
-                                                onClick={() => setNewPin({ ...newPin, rating })}
+                                                onClick={() => {
+                                                    setNewPin({ ...newPin, rating });
+                                                    setFormErrors(prev => ({ ...prev, rating: '' }));
+                                                }}
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center ${newPin.rating === rating
                                                     ? 'bg-blue-600 text-white'
                                                     : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                                                    }`}
+                                                    } ${formErrors.rating ? 'border border-red-500' : ''}`}
                                             >
                                                 {rating}
                                             </button>
                                         ))}
                                     </div>
+                                    {formErrors.rating && (
+                                        <p className="mt-1 text-sm text-red-600">{formErrors.rating}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -746,11 +965,22 @@ export const CrimeRatingMap: React.FC = () => {
                                     </label>
                                     <textarea
                                         value={newPin.description}
-                                        onChange={(e) => setNewPin({ ...newPin, description: e.target.value })}
-                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 bg-white"
+                                        onChange={(e) => {
+                                            setNewPin({ ...newPin, description: e.target.value });
+                                            setFormErrors(prev => ({ ...prev, description: '' }));
+                                        }}
+                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 bg-white ${formErrors.description ? 'border-red-500' : ''
+                                            }`}
                                         rows={3}
-                                        placeholder="What happened? When? Any details..."
+                                        placeholder="What happened? When? Any details... (Minimum 10 characters)"
+                                        required
                                     />
+                                    {formErrors.description && (
+                                        <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>
+                                    )}
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        {newPin.description.length}/500 characters (min: 10)
+                                    </p>
                                 </div>
 
                                 <div>
@@ -792,7 +1022,6 @@ export const CrimeRatingMap: React.FC = () => {
                     />
                     <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-y-auto animate-fade-in relative z-[10000]">
                         <div className="p-6">
-                            {/* Modal Header with Close Button */}
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-3">
                                     <div
@@ -902,18 +1131,16 @@ export const CrimeRatingMap: React.FC = () => {
                                         <Share2 size={20} />
                                     </button>
                                 </div>
+
+                                <div className="pt-4 border-t border-gray-200">
+                                    <p className="text-sm text-gray-500">
+                                        {selectedPin._id.includes('pin-') ?
+                                            'This is a locally saved report' :
+                                            'This report is from the backend database'}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Loading overlay */}
-            {loading && (
-                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
-                    <div className="flex flex-col items-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <p className="mt-4 text-gray-900">Loading crime reports...</p>
                     </div>
                 </div>
             )}

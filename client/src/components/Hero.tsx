@@ -41,10 +41,13 @@ const Hero = () => {
 
           <button
             onClick={() => setShowCrimeMap(!showCrimeMap)}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-md font-medium"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-xl border-3 border-white shadow-lg hover:shadow-xl font-medium transform hover:-translate-y-0.5 hover:bg-red-700 transition-all relative group"
           >
             <MapPin size={20} />
             {showCrimeMap ? 'Hide Crime Map' : 'View Crime Map'}
+            <span className="ml-2 px-2 py-0.5 bg-white text-red-600 text-xs font-bold rounded-full animate-pulse">
+              LIVE
+            </span>
           </button>
           <Link to="/submit-report" className="lg:w-fit w-full">
             <Button className="bg-white text-red-600 px-8 py-6 rounded-lg font-semibold text-lg hover:bg-gray-100 w-full">
