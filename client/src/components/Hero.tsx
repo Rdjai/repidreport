@@ -1,5 +1,5 @@
-import {Link} from "react-router-dom";
-import {Button} from "./ui/button";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 const Hero = () => {
   const stats = [
@@ -36,12 +36,12 @@ const Hero = () => {
               Submit Report
             </Button>
           </Link>
-          <Link to="/how-it-works" className="lg:w-fit w-full">
+          <Link to="/raise-problem" className="lg:w-fit w-full">
             <Button
               variant="outline"
               className="border-2 border-white text-white px-8 py-6 rounded-lg font-semibold text-lg hover:bg-white hover:text-red-600 w-full duration-100"
             >
-              How It Works
+              Raise Your Voice
             </Button>
           </Link>
         </div>

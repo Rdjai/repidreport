@@ -2,6 +2,7 @@
 import * as SOSService from './SOSService.js';
 import * as VolunteerService from './VolunteerService.js';
 import { SOCKET_EVENTS } from '../utils/constants.js';
+import volunteerModel from '../models/volunteer.model.js';
 
 let io = null;
 const connectedVolunteers = new Map();
@@ -111,7 +112,40 @@ const setupSocketHandlers = () => {
             }
         });
 
-        // Volunteer accepts SOS
+
+        socket.on('complete-sos', async (data) => {
+            try {
+                const { alertId, volunteerId } = data;
+
+                const alert = await SOSAlert.findById(alertId);
+                if (alert) {
+                    alert.status = 'resolved';
+                    alert.resolvedAt = new Date();
+                    await alert.save();
+
+                    // Notify user that SOS is resolved
+                    io.emit('sos-resolved', {
+                        alertId,
+                        message: 'Emergency has been resolved'
+                    });
+                }
+
+                // Update volunteer stats
+                const volunteer = await Volunteer.findById(volunteerId);
+                if (volunteer) {
+                    volunteer.completedCases += 1;
+                    volunteer.isAvailable = true;
+                    await volunteer.save();
+
+                    // Notify volunteer of updated stats
+                    io.to(socket.id).emit('volunteer-stats-updated', volunteer);
+                }
+
+            } catch (error) {
+                console.error('Complete SOS error:', error);
+            }
+        });
+
         socket.on('accept-sos', async (data) => {
             try {
                 const { alertId, volunteerId } = data;

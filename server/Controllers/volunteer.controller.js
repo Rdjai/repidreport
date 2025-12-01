@@ -279,3 +279,58 @@ export const acceptSOS = async (req, res) => {
         });
     }
 };
+
+
+
+export const completeCase = async (req, res) => {
+    try {
+        const volunteerId = req.user?.id || req.body.volunteerId;
+
+        if (!volunteerId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Volunteer ID is required'
+            });
+        }
+
+        console.log(`✅ Completing case for volunteer: ${volunteerId}`);
+
+        const volunteer = await Volunteer.findById(volunteerId);
+        if (!volunteer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Volunteer not found'
+            });
+        }
+
+        // Update volunteer stats
+        volunteer.completedCases = (volunteer.completedCases || 0) + 1;
+        volunteer.isAvailable = true; // Make volunteer available again
+
+        // Simple rating calculation (add 0.1 for each completed case)
+        volunteer.rating = volunteer.rating ?
+            ((volunteer.rating * (volunteer.completedCases - 1)) + 4.8) / volunteer.completedCases :
+            4.8; // Default rating for first case
+
+        // Limit rating to 5
+        if (volunteer.rating > 5) volunteer.rating = 5;
+
+        await volunteer.save();
+
+        // Remove password from response
+        const volunteerData = volunteer.toObject();
+        delete volunteerData.password;
+
+        res.json({
+            success: true,
+            message: 'Case completed successfully',
+            data: volunteerData
+        });
+    } catch (error) {
+        console.error('❌ Complete case error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

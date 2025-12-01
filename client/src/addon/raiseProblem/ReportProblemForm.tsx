@@ -121,7 +121,7 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
 
             const baseUri = import.meta.env.VITE_API_URL
             const response = await axios.post(
-                `${baseUri}/api/problems`,
+                `${baseUri}/problems`,
                 formDataObj,
                 {
                     headers: {
@@ -169,8 +169,8 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-gradient-to-r from-red-500 to-red-600      flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shad   ow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">

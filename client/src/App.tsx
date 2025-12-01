@@ -43,6 +43,11 @@ const router = createBrowserRouter([
         path: "/how-it-works",
         element: <HowItWorks />,
       },
+      {
+        path: "/raise-problem",
+        element: <ReportProblemForm />,
+
+      },
       // admin login (no layout)
       {
         path: "/admin/login",

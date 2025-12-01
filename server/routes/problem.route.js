@@ -14,12 +14,13 @@ import { authenticate } from '../Middlewares/auth.middleware.js';
 
 const router = express.Router();
 
+
 router.get('/', getProblems);
 router.get('/nearby', getNearbyProblems);
 router.get('/:id', getProblemById);
 
 router.post(
-    '/',
+    '/problems',
     upload.array('evidence', 5),
     createProblem
 );

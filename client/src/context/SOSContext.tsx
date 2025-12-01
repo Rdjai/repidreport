@@ -128,6 +128,17 @@ export const SOSProvider: React.FC<SOSProviderProps> = ({ children }) => {
                 return prev;
             });
         });
+        newSocket.on('sos-resolved', (data: { alertId: string; message: string }) => {
+            console.log('✅ SOS Resolved:', data);
+
+            if (currentAlert && currentAlert._id === data.alertId) {
+                setCurrentAlert(null);
+                setAcceptedVolunteer(null);
+
+                // Show success message to user
+                alert('Emergency has been resolved! The volunteer has completed their assistance.');
+            }
+        });
 
         setSocket(newSocket);
 

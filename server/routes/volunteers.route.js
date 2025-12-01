@@ -7,7 +7,8 @@ import {
     updateAvailability,
     updateLocation,
     getNearby,
-    acceptSOS
+    acceptSOS,
+    completeCase
 } from '../Controllers/volunteer.controller.js';
 import { authenticate } from '../Middlewares/auth.middleware.js';
 
@@ -23,5 +24,7 @@ router.get('/profile', authenticate, getProfile);
 router.put('/availability', authenticate, updateAvailability);
 router.put('/location', authenticate, updateLocation);
 router.post('/accept-sos', authenticate, acceptSOS);
+
+router.post('/complete-case', authenticate, completeCase);
 
 export default router;
