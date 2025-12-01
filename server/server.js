@@ -13,7 +13,8 @@ import adminRoutes from "./routes/admin.route.js";
 import sosRoutes from './routes/sos.route.js';
 import problemRoute from './routes/problem.route.js'
 import volunteerAuthRoutes from './routes/volunteers.route.js';
-import { initialize as initializeSocket } from './services/SocketService.js'; // Fixed import
+import crimePinRoutes from './routes/crimePin.route.js';
+import { initialize as initializeSocket } from './services/SocketService.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -45,7 +46,8 @@ if (mode === "dev") {
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-
+app.use(helmet());
+app.use(morgan('dev'));
 // Session configuration
 app.use(
   session({
@@ -83,7 +85,7 @@ app.use("/api", adminRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/volunteer', volunteerAuthRoutes);
 app.use('/api/problem', problemRoute)
-
+app.use('/api/crime-pins', crimePinRoutes);
 // 404 handler for undefined routes
 // app.use('*', (req, res) => {
 //   res.status(404).json({
