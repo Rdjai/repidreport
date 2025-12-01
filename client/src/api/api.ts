@@ -1,4 +1,4 @@
-import {REPORT_SUBMIT_ROUTE} from "@/utils/constants";
+import { REPORT_SUBMIT_ROUTE } from "@/utils/constants";
 import axios from "axios";
 
 export const api = axios.create({
@@ -47,7 +47,7 @@ export const trackReportById = async (reportId: string) => {
 // admin login
 
 export const adminLogin = async (email: string, password: string) => {
-  return api.post("/api/admin-login", {email, password});
+  return api.post("/api/admin-login", { email, password });
 };
 
 // Admin API functions
@@ -60,8 +60,8 @@ export const getAllReports = async () => {
 export const updateReportStatus = async (reportId: string, status: string) => {
   return await api.patch(
     `/api/admin/reports/${reportId}/status`,
-    {status},
-    {withCredentials: true}
+    { status },
+    { withCredentials: true }
   );
 };
 

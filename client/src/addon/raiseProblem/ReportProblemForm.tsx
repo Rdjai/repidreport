@@ -11,7 +11,7 @@ interface ReportProblemFormProps {
     onSuccess?: () => void;
     onCancel?: () => void;
 }
-
+const baseUri = import.meta.env.VITE_BASE_URL
 const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCancel }) => {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
@@ -119,9 +119,9 @@ const ReportProblemForm: React.FC<ReportProblemFormProps> = ({ onSuccess, onCanc
                 formDataObj.append('evidence', file);
             });
 
-            const baseUri = import.meta.env.VITE_API_URL
+
             const response = await axios.post(
-                `${baseUri}/problems`,
+                `${baseUri}/api/problems`,
                 formDataObj,
                 {
                     headers: {

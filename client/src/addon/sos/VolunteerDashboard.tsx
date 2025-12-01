@@ -36,7 +36,7 @@ const VolunteerDashboard: React.FC = () => {
     const [showCompletedHistory, setShowCompletedHistory] = useState(false);
     const [completedCases, setCompletedCases] = useState<SOSAlert[]>([]);
 
-
+    const baseUri = import.meta.env.VITE_BASE_URL
 
     const navigate = useNavigate();
 
@@ -51,7 +51,7 @@ const VolunteerDashboard: React.FC = () => {
     const fetchCompletedCases = async () => {
         try {
             const response = await axios.get(
-                `http://localhost:5000/api/sos/completed?volunteerId=${volunteerData._id}`,
+                `${baseUri}/api/sos/completed?volunteerId=${volunteerData._id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setCompletedCases(response.data.data);
@@ -72,7 +72,7 @@ const VolunteerDashboard: React.FC = () => {
         console.log('🎯 Initializing volunteer dashboard...');
 
         // Connect to Socket.io
-        const socketInstance = io('https://repidreport-zynl.onrender.com', {
+        const socketInstance = io('https://repidreport-zynl.onrender.com/', {
             auth: { token }
         });
 
@@ -113,7 +113,7 @@ const VolunteerDashboard: React.FC = () => {
                     // Send location to server
                     if (token && socketInstance.connected) {
                         // Send to server API
-                        axios.put('https://repidreport-zynl.onrender.com/api/volunteer/location', {
+                        axios.put(`${baseUri}/api/volunteer/location`, {
                             lat: location.lat,
                             lng: location.lng
                         }, {
@@ -217,7 +217,7 @@ const VolunteerDashboard: React.FC = () => {
             // Send accept request to server
 
             const response = await axios.post(
-                'https://repidreport-zynl.onrender.com/api/volunteer/accept-sos',
+                `${baseUri}/api/volunteer/accept-sos`,
                 {
                     alertId: alert._id,
                     volunteerId: volunteerData._id,
@@ -284,7 +284,7 @@ const VolunteerDashboard: React.FC = () => {
             console.log('✅ Completing alert:', acceptedAlert._id);
 
             const response = await axios.put(
-                `http://localhost:5000/api/sos/${acceptedAlert._id}/complete`,
+                `${baseUri}/api/sos/${acceptedAlert._id}/complete`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -292,7 +292,7 @@ const VolunteerDashboard: React.FC = () => {
             console.log('✅ Alert completed:', response.data);
 
             await axios.put(
-                `http://localhost:5000/api/volunteer/complete-case`,
+                `${baseUri}/api/volunteer/complete-case`,
                 { volunteerId: volunteerData._id },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -302,7 +302,7 @@ const VolunteerDashboard: React.FC = () => {
             alert('Case marked as complete! Thank you for your help.');
 
             const updatedVolunteer = await axios.get(
-                `http://localhost:5000/api/volunteer/profile`,
+                `${baseUri}/api/volunteer/profile`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 

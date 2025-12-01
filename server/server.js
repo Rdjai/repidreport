@@ -11,6 +11,7 @@ import { DbConnect } from "./utils/DBConnection.js";
 import reportRoute from "./routes/report.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import sosRoutes from './routes/sos.route.js';
+import problemRoute from './routes/problem.route.js'
 import volunteerAuthRoutes from './routes/volunteers.route.js';
 import { initialize as initializeSocket } from './services/SocketService.js'; // Fixed import
 
@@ -81,6 +82,7 @@ app.use("/api", reportRoute);
 app.use("/api", adminRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/volunteer', volunteerAuthRoutes);
+app.use('/api', problemRoute)
 
 // 404 handler for undefined routes
 // app.use('*', (req, res) => {

@@ -1,5 +1,5 @@
 // controllers/ProblemController.js
-import Problem from '../models/Problem.js';
+import Problem from '../models/problem.model.js';
 import { uploadFile } from '../services/FileService.js';
 
 export const createProblem = async (req, res) => {

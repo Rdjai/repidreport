@@ -26,7 +26,7 @@ const navItems = [
   },
   {
     name: "Volunteer",
-    path: "/volunteer/login ",
+    path: "/volunteer/login",
   },
 ];
 

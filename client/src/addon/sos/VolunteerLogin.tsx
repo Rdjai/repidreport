@@ -5,7 +5,7 @@ import { LogIn, UserPlus, Shield } from 'lucide-react';
 import axios from 'axios';
 
 const VolunteerLogin: React.FC = () => {
-    const baseUri = import.meta.env.VITE_API_URL
+    const baseUri = import.meta.env.VITE_BASE_URL
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
@@ -25,8 +25,8 @@ const VolunteerLogin: React.FC = () => {
 
         try {
             const url = isLogin
-                ? `${baseUri}/volunteer/login`
-                : `${baseUri}/volunteer/register`;
+                ? `${baseUri}/api/volunteer/login`
+                : `${baseUri}/api/volunteer/register`;
 
             const payload = isLogin
                 ? { email: formData.email, password: formData.password }
