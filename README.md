@@ -1,110 +1,134 @@
-# RapidReport
+# 🚨 RapidReport  
+### *“Report Fast. Stay Safe.”*
 
-A modern community safety reporting platform that helps citizens quickly report incidents and track their progress. Built with AI-powered image analysis to make reporting faster and more accurate.
+RapidReport is an anonymous, real-time crime and safety reporting platform where users can instantly raise alerts, report crimes, track area safety levels, and trigger SOS signals. It empowers communities to stay aware, stay informed, and stay safe — with just one tap.
 
-## What is RapidReport?
+---
 
-RapidReport is a web application that makes it easy for people to report incidents in their community. Whether it's a theft, medical emergency, or safety concern, users can quickly submit reports with photos, and our AI will automatically help fill in the details.
+## 🧠 What is RapidReport?
 
-## Key Features
+RapidReport is a smart public-safety platform built for:
 
-🤖 **Smart AI Analysis** - Upload a photo and let AI automatically detect what happened and fill in report details <br>
-📱 **Easy Reporting** - Simple forms that work on any device  <br>
-🔍 **Track Progress** - Follow your report status with a unique tracking ID <br>
-👨‍💼 **Admin Dashboard** - Tools for administrators to manage and respond to reports <br>
-📍 **Location Services** - Automatic location detection or manual entry <br>
-🆘 **Emergency Support** - Quick access to emergency contacts and local services <br>
+- Anonymous crime reporting  
+- SOS emergency alerts  
+- Volunteer rescue response  
+- Area-wise crime heatmap  
+- Real-time tracking & notifications  
+- AI-based image analysis (optional)
 
-## How It Works
+Everything is **anonymous** — no user login required.
 
-1. **Take a Photo** - Snap a picture of the incident or situation
-2. **AI Does the Work** - Our AI analyzes the image and suggests report details
-3. **Review & Submit** - Check the AI suggestions, make any edits, and submit
-4. **Track Progress** - Use your report ID to see status updates
+---
 
-## Technology Stack
-   
-**Frontend**
+## ✨ Key Features
 
-- React 19 with TypeScript
-- Vite for fast development
-- Tailwind CSS for styling
-- React Router for navigation
+### 🔴 1. Anonymous Crime Reporting
+- Simple 3-step reporting  
+- No login or identity required  
+- Generate unique Report ID  
+- Track report status anytime  
+- Admin panel for verification  
 
-**Backend**
+### 🗺️ 2. Area Crime Heatmap
+- Users pin crime locations on a map  
+- Color-coded risk levels:
+  - 🟥 High Risk  
+  - 🟧 Medium Risk  
+  - 🟨 Low Risk  
+- Live-updating heatmap based on reports  
 
-- Node.js and Express.js
-- MongoDB database
-- Google Gemini AI for image analysis
-- Cloudinary for image storage
+### 🆘 3. SOS Emergency Alert
+- Floating SOS button  
+- Long-press for confirmation  
+- Sends user location + optional photo  
+- Nearby volunteers get immediate alerts  
+- Real-time map tracking (user ↔ volunteer)
 
-**Tools**
+### 🧑‍🤝‍🧑 4. Volunteer System
+- Volunteer registration/login  
+- Accept SOS requests  
+- Update availability  
+- Live location tracking  
+- Helps users during emergencies  
 
-- Multer for file uploads
-- Axios for API requests
-- ESLint and TypeScript for code quality
+### 📸 5. Image Analysis (Optional Enhancement)
+- Upload or capture image  
+- AI model analyzes for threats  
+- Helps reduce false reports  
 
-## Project Structure
+---
 
-The project is organized into two main parts:
+## 🏗️ Tech Stack
 
-```
+### **Frontend**
+- React / TypeScript  
+- Tailwind UI  
+- Map SDK (Leaflet / Google Maps)  
+- Socket.io client  
+
+### **Backend**
+- Node.js + Express  
+- MongoDB + Mongoose  
+- WebSockets (Socket.io)  
+- Multer (image upload)  
+- GeoJSON for location queries  
+- JWT authentication (volunteers only)
+
+---
+
+## 📡 API Overview
+
+### **Report APIs**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/submit-report` | Submit anonymous crime report |
+| GET  | `/track-report/:id` | Track report status |
+| POST | `/analyze-image` | AI image analysis |
+
+### **SOS APIs**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/sos/trigger` | Trigger SOS alert |
+| GET  | `/sos/active` | List all active SOS |
+| GET  | `/sos/:id` | Get SOS alert details |
+| PUT  | `/sos/:id/accept` | Volunteer accepts alert |
+| PUT  | `/sos/:id/cancel` | Cancel alert |
+
+### **Volunteer APIs**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/volunteer/register` | Register volunteer |
+| POST | `/volunteer/login` | Login volunteer |
+| GET  | `/volunteer/profile` | Get profile |
+| PUT  | `/volunteer/availability` | Update availability |
+| PUT  | `/volunteer/location` | Update location |
+| GET  | `/volunteer/nearby` | Get nearby volunteers |
+| POST | `/volunteer/accept-sos` | Accept SOS |
+
+---
+
+## 🚀 How to Run the Project
+
+### **Backend Setup**
+```bash
+cd server
+npm install
+npm start
+Frontend Setup
+cd client
+npm install
+npm run dev
+
+📁 Folder Structure (Short)
 rapidReport/
-├── client/                    # React frontend
-│   ├── src/
-│   │   ├── components/        # UI components
-│   │   │   ├── pages/         # Page components
-│   │   │   ├── admin/         # Admin dashboard
-│   │   │   └── ui/            # Reusable UI parts
-│   │   ├── api/              # API calls
-│   │   └── store/            # State management
-│   └── package.json
-├── server/                   # Node.js backend
-│   ├── Controllers/          # Business logic
-│   ├── models/              # Database schemas
-│   ├── routes/              # API endpoints
-│   └── utils/               # Helper functions
-└── README.md
-```
-
-## How to Use
-
-### For Regular Users
-
-1. Go to "Submit Report"
-2. Upload a photo of the incident
-3. Let AI fill in the details automatically
-4. Review and edit if needed
-5. Submit and get a tracking ID
-
-### For Administrators
-
-1. Log in to the admin dashboard
-2. View all submitted reports
-3. Update report statuses
-4. Monitor system analytics
-
-## API Endpoints
-
-**Base URL:** http://localhost:8123
-
-**Key Endpoints:**
-
-- `POST /api/submit-report` - Submit new report
-- `GET /api/track-report/:reportId` - Track report status
-- `POST /api/analyze-image` - AI image analysis
-- `GET /api/admin/reports` - Admin: view all reports
-- `POST /auth/login` - Admin login
-
-## Contributing
-
-We welcome contributions! Here's how to help:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License.
+ ├── server/
+ │   ├── Controllers/
+ │   ├── routes/
+ │   ├── models/
+ │   ├── services/
+ │   ├── utils/
+ │   └── server.js
+ ├── client/
+ │   ├── src/
+ │   └── public/
+ └── README.md
