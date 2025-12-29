@@ -87,9 +87,10 @@ const Header = () => {
             <div className="flex-shrink-0">
               <Link
                 to="/"
-                className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200"
+                className="flex justify-center items-center text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200"
               >
-                Rapid<span className="text-red-500 ">Report</span>
+                <img src="./icon.png" alt="repid report" height={50} width={50} />
+                <span className="text-red-500 ">Report</span>
               </Link>
             </div>
             {/* left section  */}

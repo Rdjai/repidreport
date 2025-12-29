@@ -7,8 +7,8 @@ import type { SOSContextType, SOSAlert, Volunteer, Location } from '../types/sos
 const SOSContext = createContext<SOSContextType | undefined>(undefined);
 
 // Get environment variables with fallbacks
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://repidreport-zynl.onrender.com/api';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://repidreport-zynl.onrender.com';
 
 console.log('API URL:', API_URL);
 console.log('Socket URL:', SOCKET_URL);

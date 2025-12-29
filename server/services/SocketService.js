@@ -1,4 +1,3 @@
-// services/SocketService.js
 import * as SOSService from './SOSService.js';
 import * as VolunteerService from './VolunteerService.js';
 import { SOCKET_EVENTS } from '../utils/constants.js';
@@ -24,7 +23,7 @@ const setupSocketHandlers = () => {
             console.log(`📍 Volunteer ${volunteerId} location:`, location);
 
             // Update volunteer location in database
-            await Volunteer.findByIdAndUpdate(volunteerId, {
+            await volunteerModel.findByIdAndUpdate(volunteerId, {
                 currentLocation: location,
                 lastActive: new Date()
             });
@@ -131,7 +130,7 @@ const setupSocketHandlers = () => {
                 }
 
                 // Update volunteer stats
-                const volunteer = await Volunteer.findById(volunteerId);
+                const volunteer = await volunteerModel.findById(volunteerId);
                 if (volunteer) {
                     volunteer.completedCases += 1;
                     volunteer.isAvailable = true;
@@ -159,7 +158,7 @@ const setupSocketHandlers = () => {
                 }
 
                 // Get volunteer details WITH CURRENT LOCATION
-                const volunteer = await Volunteer.findById(volunteerId)
+                const volunteer = await volunteerModel.findById(volunteerId)
                     .select('name phone skills rating currentLocation isAvailable isOnline');
 
                 if (!volunteer) {

@@ -99,7 +99,7 @@ app.use('/api/crime-pins', crimePinRoutes);
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173", // Added fallback
+    origin: process.env.CLIENT_URL || "https://repidreport.rdjkashyap.cv", // Added fallback
     methods: ["GET", "POST"],
     credentials: true
   }

@@ -2,7 +2,7 @@
 // const axios = require('axios');
 import axios from "axios";
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://repidreport-zynl.onrender.com';
 
 async function simpleTest() {
     try {
