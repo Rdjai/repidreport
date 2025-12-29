@@ -26,7 +26,7 @@ const mode = process.env.MODE;
 if (mode === "dev") {
   app.use(
     cors({
-      origin: process.env.CLIENT_URL || "http://localhost:3000", // Added fallback
+      origin: process.env.CLIENT_URL || "https://repidreport.rdjkashyap.cv", // Added fallback
       credentials: true,
     })
   );
@@ -40,7 +40,7 @@ if (mode === "dev") {
 } else {
   // Default CORS for development
   app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "https://repidreport.rdjkashyap.cv",
     credentials: true
   }));
 }
